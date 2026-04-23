@@ -33,8 +33,14 @@ interface Application {
   status: string
   location?: string | null
   appliedDate: Date | string
+  lastUpdate: Date | string
   emails: Email[]
   summary?: string
+  aiAnalysis?: {
+    summary: string
+    sentiment: number
+    velocity: string
+  } | null
 }
 
 interface ApplicationDetailsProps {
@@ -144,7 +150,7 @@ export function ApplicationDetails({ application, onEdit, onDelete }: Applicatio
                 <Sparkles className="absolute top-4 right-4 w-5 h-5 text-primary/30 group-hover:scale-125 transition-transform" />
                 <h4 className="text-xs font-black text-primary uppercase tracking-widest mb-3">AI Analysis</h4>
                 <p className="text-lg leading-relaxed font-medium">
-                  {application.summary || "Generating intelligence report... Connect your Gmail to enable deep AI insights for this application."}
+                  {application.summary || (application.emails.length > 0 ? "Analyzing your correspondence to generate an intelligence report..." : "Add more details or connect Gmail to enable deep AI insights for this application.")}
                 </p>
               </div>
 
@@ -153,18 +159,28 @@ export function ApplicationDetails({ application, onEdit, onDelete }: Applicatio
                   <h4 className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-4">Sentiment Analysis</h4>
                   <div className="flex items-center gap-4">
                     <div className="flex-1 h-2 rounded-full bg-border overflow-hidden">
-                      <div className="h-full bg-emerald-500 w-[85%]" />
+                      <div 
+                        className="h-full bg-emerald-500 transition-all duration-1000" 
+                        style={{ width: `${application.aiAnalysis?.sentiment || 0}%` }}
+                      />
                     </div>
-                    <span className="text-sm font-bold text-emerald-500">85% Positive</span>
+                    <span className="text-sm font-bold text-emerald-500">
+                      {application.aiAnalysis?.sentiment || 0}% Positive
+                    </span>
                   </div>
                 </div>
                 <div className="p-6 rounded-2xl border border-border bg-card/50">
                   <h4 className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-4">Response Velocity</h4>
                   <div className="flex items-center gap-4">
                     <div className="flex-1 h-2 rounded-full bg-border overflow-hidden">
-                      <div className="h-full bg-blue-500 w-[60%]" />
+                      <div 
+                        className="h-full bg-blue-500 transition-all duration-1000" 
+                        style={{ width: application.aiAnalysis?.velocity === "Fast" ? "100%" : application.aiAnalysis?.velocity === "Normal" ? "60%" : application.aiAnalysis?.velocity === "Slow" ? "30%" : "0%" }}
+                      />
                     </div>
-                    <span className="text-sm font-bold text-blue-500">Fast (2 days)</span>
+                    <span className="text-sm font-bold text-blue-500">
+                      {application.aiAnalysis?.velocity || "Pending"}
+                    </span>
                   </div>
                 </div>
               </div>

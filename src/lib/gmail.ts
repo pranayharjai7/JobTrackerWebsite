@@ -144,7 +144,57 @@ export async function syncEmails(userId: string) {
           },
         })
 
+        // Generate AI Analysis after syncing the new email
+        try {
+          const updatedAppWithEmails = await prisma.application.findUnique({
+            where: { id: application.id },
+            include: { emails: { orderBy: { timestamp: "desc" } } }
+          })
+
+          if (updatedAppWithEmails && aiProvider.analyzeApplication) {
+            const analysis = await aiProvider.analyzeApplication(updatedAppWithEmails)
+            await prisma.application.update({
+              where: { id: application.id },
+              data: {
+                summary: analysis.summary,
+                aiAnalysis: analysis as any,
+                lastUpdate: new Date()
+              }
+            })
+          }
+        } catch (aiError) {
+          console.error("AI Analysis failed during sync:", aiError)
+        }
+
         allLogs.push(`[${account.providerAccountId}] Parsed email from ${parsedData.company}: ${parsedData.status}`)
+      }
+    }
+  }
+
+  // Backfill: Generate analysis for any application that has emails but no summary
+  const appsWithoutSummary = await prisma.application.findMany({
+    where: { 
+      userId,
+      summary: null
+    },
+    include: { emails: { orderBy: { timestamp: "desc" } } }
+  })
+
+  if (appsWithoutSummary.length > 0 && aiProvider.analyzeApplication) {
+    console.log(`Backfilling AI analysis for ${appsWithoutSummary.length} applications`)
+    for (const app of appsWithoutSummary) {
+      try {
+        const analysis = await aiProvider.analyzeApplication(app)
+        await prisma.application.update({
+          where: { id: app.id },
+          data: {
+            summary: analysis.summary,
+            aiAnalysis: analysis as any,
+          }
+        })
+        allLogs.push(`Backfilled AI analysis for ${app.company}`)
+      } catch (error) {
+        console.error(`Failed to backfill analysis for ${app.company}:`, error)
       }
     }
   }

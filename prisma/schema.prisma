@@ -65,6 +65,8 @@ model Application {
   lastUpdate   DateTime  @default(now()) @updatedAt
   emails       Email[]
   events       Event[]
+  summary      String?   @db.Text
+  aiAnalysis   Json?     
 }
 
 enum Status {

@@ -8,8 +8,15 @@ export interface ParsedJobData {
   confidence: number
 }
 
+export interface AIAnalysis {
+  summary: string
+  sentiment: number
+  velocity: string
+}
+
 export interface AIProvider {
   parseJobEmail(emailContent: string): Promise<ParsedJobData | null>
   generateSummary?(applicationData: any): Promise<string>
+  analyzeApplication?(applicationData: any): Promise<AIAnalysis>
   suggestFilters?(data: any): Promise<string[]>
 }

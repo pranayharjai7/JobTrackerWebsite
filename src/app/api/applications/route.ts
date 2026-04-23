@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
+import { getAIProvider } from "@/lib/ai"
 
 export async function GET() {
   const session = await getServerSession(authOptions)
@@ -50,6 +51,29 @@ export async function POST(req: Request) {
         lastUpdate: new Date(),
       }
     })
+
+    // Generate initial AI Analysis for manual application
+    try {
+      const aiProvider = getAIProvider()
+      if (aiProvider.analyzeApplication) {
+        const analysis = await aiProvider.analyzeApplication({
+          company,
+          role,
+          status,
+          emails: [] // No emails yet for manual add
+        })
+
+        await prisma.application.update({
+          where: { id: application.id },
+          data: {
+            summary: analysis.summary,
+            aiAnalysis: analysis as any,
+          }
+        })
+      }
+    } catch (aiError) {
+      console.error("AI Analysis failed for manual application:", aiError)
+    }
 
     return NextResponse.json(application)
   } catch (error) {

@@ -14,6 +14,8 @@ interface Application {
   status: string
   appliedDate: Date | string
   lastUpdate: Date | string
+  summary?: string
+  aiAnalysis?: any
 }
 
 interface ListViewProps {
