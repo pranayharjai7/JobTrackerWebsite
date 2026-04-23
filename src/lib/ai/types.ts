@@ -10,4 +10,6 @@ export interface ParsedJobData {
 
 export interface AIProvider {
   parseJobEmail(emailContent: string): Promise<ParsedJobData | null>
+  generateSummary?(applicationData: any): Promise<string>
+  suggestFilters?(data: any): Promise<string[]>
 }
