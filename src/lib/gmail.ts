@@ -114,22 +114,24 @@ export async function syncEmails(userId: string) {
           })
         } else {
           const isNewer = emailTimestamp > application.lastUpdate
-          if (isNewer && application.status !== parsedData.status) {
+          if (isNewer) {
+            const updateData: any = { lastUpdate: emailTimestamp }
+            if (application.status !== parsedData.status) {
+              updateData.status = parsedData.status
+              
+              await prisma.event.create({
+                data: {
+                  applicationId: application.id,
+                  eventType: parsedData.status,
+                  date: emailTimestamp,
+                  notes: `Status auto-updated from email: "${subject}"`,
+                },
+              })
+            }
+
             await prisma.application.update({
               where: { id: application.id },
-              data: { 
-                status: parsedData.status,
-                lastUpdate: emailTimestamp
-              },
-            })
-            
-            await prisma.event.create({
-              data: {
-                applicationId: application.id,
-                eventType: parsedData.status,
-                date: emailTimestamp,
-                notes: `Status auto-updated from email: "${subject}"`,
-              },
+              data: updateData,
             })
           }
         }
@@ -158,7 +160,6 @@ export async function syncEmails(userId: string) {
               data: {
                 summary: analysis.summary,
                 aiAnalysis: analysis as any,
-                lastUpdate: new Date()
               }
             })
           }

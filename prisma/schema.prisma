@@ -62,7 +62,7 @@ model Application {
   status       Status    @default(APPLIED)
   source       String?
   appliedDate  DateTime  @default(now())
-  lastUpdate   DateTime  @default(now()) @updatedAt
+  lastUpdate   DateTime  @default(now())
   emails       Email[]
   events       Event[]
   summary      String?   @db.Text
