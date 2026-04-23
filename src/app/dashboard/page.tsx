@@ -3,11 +3,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { 
-  Briefcase, 
-  MessageSquare, 
-  CheckCircle2,
-  TrendingUp,
-  Clock,
+  Briefcase,
   List,
   History,
   Sparkles,
@@ -34,7 +30,7 @@ export default function DashboardPage() {
   const { data: session } = useSession()
   const [view, setView] = useState<"list" | "journey">("list")
   const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState("ALL")
+  const [statusFilter] = useState("ALL")
   const { status: syncStatus, triggerSync } = useSyncContext()
   const isSyncing = syncStatus === "syncing"
   const [selectedApp, setSelectedApp] = useState<any>(null)
@@ -50,7 +46,7 @@ export default function DashboardPage() {
         const data = await res.json()
         setApplications(data)
       }
-    } catch (error) {
+    } catch {
       console.error("Failed to fetch applications")
     } finally {
       setIsLoading(false)

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Briefcase, Calendar, CheckCircle2, ChevronRight, MessageSquare, Star, Trophy } from "lucide-react";
+import { Briefcase, CheckCircle2, ChevronRight, MessageSquare, Star, Trophy } from "lucide-react";
 
 export default function TimelineMockup() {
   const steps = [

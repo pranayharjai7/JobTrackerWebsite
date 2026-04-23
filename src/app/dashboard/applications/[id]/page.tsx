@@ -74,7 +74,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
               Journey Timeline
             </h2>
             <div className="space-y-8 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-border/50">
-              {application.events.map((event) => (
+              {application.events.map((event: any) => (
                 <div key={event.id} className="flex gap-6 relative">
                   <div className="w-6 h-6 rounded-full bg-background border-2 border-primary flex-shrink-0 z-10 flex items-center justify-center">
                     <div className="w-2 h-2 rounded-full bg-primary" />

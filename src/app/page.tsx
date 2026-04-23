@@ -7,14 +7,14 @@ import SyncStatusMockup from "@/components/mockups/SyncStatusMockup";
 import HeatmapMockup from "@/components/mockups/HeatmapMockup";
 import TimelineMockup from "@/components/mockups/TimelineMockup";
 import { motion } from "framer-motion";
-import { ArrowRight, Bot, Cpu, Gauge, Globe, Mail, ShieldCheck, Zap, BarChart3, Clock, Brain, Shield } from "lucide-react";
+import { ArrowRight, Bot, Gauge, Mail, ShieldCheck, BarChart3, Clock, Brain, Shield } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Home() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
 
   useEffect(() => {

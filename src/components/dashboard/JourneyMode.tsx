@@ -1,7 +1,7 @@
 "use client"
 
 import { format } from "date-fns"
-import { CheckCircle2, Circle, Clock, MessageSquare, XCircle, Trophy } from "lucide-react"
+import { Circle, Clock, MessageSquare, XCircle, Trophy } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface Application {
@@ -22,7 +22,7 @@ export function JourneyMode({ applications }: { applications: Application[] }) {
 
   return (
     <div className="relative space-y-12 before:absolute before:left-[17px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gradient-to-b before:from-primary/50 before:via-border before:to-transparent">
-      {sortedApps.map((app, index) => (
+      {sortedApps.map((app) => (
         <div key={app.id} className="relative pl-12 group">
           <div className={cn(
             "absolute left-0 top-0 w-9 h-9 rounded-full border-4 border-background flex items-center justify-center z-10 transition-all group-hover:scale-110",

@@ -2,8 +2,8 @@
 
 import { useSession, signOut } from "next-auth/react"
 import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import { User, Shield, Bell, Zap, Mail, Trash2, ShieldCheck, Loader2 } from "lucide-react"
+import { User, Zap, Mail, Trash2, ShieldCheck, Loader2 } from "lucide-react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -31,7 +31,7 @@ export default function SettingsPage() {
         await update({ name }) // Update the session client-side
         alert("Profile updated successfully!")
       }
-    } catch (error) {
+    } catch {
       alert("Failed to update profile.")
     } finally {
       setIsUpdating(false)
@@ -49,7 +49,7 @@ export default function SettingsPage() {
       if (res.ok) {
         await signOut({ callbackUrl: "/" })
       }
-    } catch (error) {
+    } catch {
       alert("Failed to delete account.")
       setIsDeleting(false)
     }
@@ -69,7 +69,7 @@ export default function SettingsPage() {
       } else {
         alert("Failed to clear data.")
       }
-    } catch (error) {
+    } catch {
       alert("An error occurred while clearing data.")
     } finally {
       setIsClearingData(false)
@@ -95,7 +95,13 @@ export default function SettingsPage() {
             <div className="relative group">
               <div className="w-24 h-24 rounded-2xl bg-primary/10 border-2 border-dashed border-primary/30 flex items-center justify-center overflow-hidden">
                 {session?.user?.image ? (
-                  <img src={session.user.image} alt="Profile" className="w-full h-full object-cover" />
+                  <Image 
+                    src={session.user.image} 
+                    alt="Profile" 
+                    width={96} 
+                    height={96} 
+                    className="w-full h-full object-cover" 
+                  />
                 ) : (
                   <User className="w-10 h-10 text-primary/50" />
                 )}

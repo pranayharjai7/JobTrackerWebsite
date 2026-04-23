@@ -3,7 +3,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { motion } from "framer-motion";
-import { Mail, Code2, Rocket, Heart, Coffee } from "lucide-react";
+import { Code2, Rocket, Heart, Coffee } from "lucide-react";
 
 function GithubIcon({ className }: { className?: string }) {
   return (

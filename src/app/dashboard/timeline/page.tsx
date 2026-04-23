@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
-import { motion, AnimatePresence } from "framer-motion"
-import { CheckCircle2, Circle, Clock, Mail, MessageSquare, Trophy, AlertCircle, RotateCcw } from "lucide-react"
+import { motion } from "framer-motion"
+import { Circle, Clock, Mail, Trophy, AlertCircle, RotateCcw } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export default function TimelinePage() {
@@ -19,7 +19,7 @@ export default function TimelinePage() {
           const data = await res.json()
           setApplications(data)
         }
-      } catch (error) {
+      } catch {
         console.error("Failed to fetch applications")
       } finally {
         setIsLoading(false)

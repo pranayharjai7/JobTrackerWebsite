@@ -4,16 +4,11 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { motion } from "framer-motion";
 import { 
-  Bot, 
   Database, 
-  Layers, 
-  ListFilter, 
   Mail, 
   Shield, 
-  History,
   Workflow,
   Zap,
-  Clock,
   Brain,
   BarChart3
 } from "lucide-react";

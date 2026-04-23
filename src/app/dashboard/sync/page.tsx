@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { RefreshCw, CheckCircle2, AlertCircle, Mail, Loader2 } from "lucide-react"
+import { RefreshCw, AlertCircle, Mail, Loader2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 export default function SyncPage() {
@@ -24,7 +24,7 @@ export default function SyncPage() {
       } else {
         setError(data.message || "Failed to sync emails. Please try again.")
       }
-    } catch (err) {
+    } catch {
       setError("An unexpected error occurred during sync.")
     } finally {
       setIsSyncing(false)

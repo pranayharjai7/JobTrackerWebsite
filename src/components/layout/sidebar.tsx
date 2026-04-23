@@ -13,7 +13,8 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { signOut, useSession } from "next-auth/react"
-import { useSyncContext } from "@/context/SyncContext"
+
+import Image from "next/image"
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
@@ -34,8 +35,8 @@ const legalItems = [
 export function Sidebar() {
   const pathname = usePathname()
   const { data: session } = useSession()
-  const { status: syncStatus } = useSyncContext()
-  const isSyncing = syncStatus === "syncing"
+
+
 
   return (
     <aside className="w-64 h-screen border-r border-border bg-card/30 flex flex-col sticky top-0">
@@ -43,7 +44,13 @@ export function Sidebar() {
         <div className="flex items-center gap-3 mb-10">
           <div className="w-10 h-10 rounded-xl overflow-hidden border border-primary/20 shadow-lg shadow-primary/10">
             {session?.user?.image ? (
-              <img src={session.user.image} alt="Profile" className="w-full h-full object-cover" />
+              <Image 
+                src={session.user.image} 
+                alt="Profile" 
+                width={40} 
+                height={40} 
+                className="w-full h-full object-cover" 
+              />
             ) : (
               <div className="w-full h-full bg-primary flex items-center justify-center">
                 <span className="font-black text-white text-lg">

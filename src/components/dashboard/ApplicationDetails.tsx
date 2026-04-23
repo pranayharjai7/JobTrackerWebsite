@@ -1,22 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import { motion } from "framer-motion"
 import { 
   Building2, 
   Mail, 
   Calendar, 
   MapPin, 
-  ChevronRight, 
   ExternalLink,
-  ShieldCheck,
-  MessageSquare,
-  Clock,
   Sparkles,
   Edit2,
   Trash2,
-  X
 } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 interface Email {
@@ -194,7 +189,7 @@ export function ApplicationDetails({ application, onEdit, onDelete }: Applicatio
               className="space-y-8 relative before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-[2px] before:bg-border"
             >
               {application.emails.length > 0 ? (
-                application.emails.map((email, i) => (
+                application.emails.map((email) => (
                   <div key={email.id} className="relative pl-12 group">
                     <div className="absolute left-0 top-0 w-10 h-10 rounded-full bg-background border-2 border-border flex items-center justify-center z-10 group-hover:border-primary transition-colors">
                       <Mail className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
@@ -236,4 +231,4 @@ function getStatusStyles(status: string) {
   }
 }
 
-import { AnimatePresence } from "framer-motion"
+

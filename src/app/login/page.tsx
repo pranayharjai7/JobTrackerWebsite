@@ -2,7 +2,7 @@
 
 import { signIn } from "next-auth/react"
 import { motion } from "framer-motion"
-import { Mail, ArrowLeft } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
 export default function LoginPage() {

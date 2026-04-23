@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import { formatDistanceToNow } from "date-fns"
-import { Briefcase, Building2, MapPin, Calendar, ArrowRight, MoreVertical, Edit2, Trash2 } from "lucide-react"
+import { Building2, MapPin, Calendar, ArrowRight, MoreVertical, Edit2, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 
