@@ -63,7 +63,7 @@ export default async function ApplicationsPage() {
           </TableHeader>
           <TableBody>
             {applications.length > 0 ? (
-              applications.map((app) => (
+              applications.map((app: any) => (
                 <TableRow key={app.id} className="hover:bg-muted/20 transition-colors">
                   <TableCell className="font-semibold">
                     <div className="flex items-center gap-3">

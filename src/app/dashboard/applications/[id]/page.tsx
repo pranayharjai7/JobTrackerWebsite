@@ -111,7 +111,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
               Parsed Emails
             </h2>
             <div className="space-y-3">
-              {application.emails.map((email) => (
+              {application.emails.map((email: any) => (
                 <div key={email.id} className="p-6 rounded-xl border border-border bg-card/30 hover:bg-card/50 transition-all space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="font-semibold">{email.subject}</div>
