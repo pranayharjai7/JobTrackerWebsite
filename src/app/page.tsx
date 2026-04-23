@@ -1,10 +1,34 @@
 "use client"
 
 import Link from "next/link"
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { useEffect } from "react"
 import { motion } from "framer-motion"
 import { ArrowRight, Mail, BarChart3, Clock, Brain, Shield } from "lucide-react"
 
 export default function LandingPage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/dashboard")
+    }
+  }, [status, router])
+
+  if (status === "loading" || status === "authenticated") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0B0B0F]">
+        <motion.div 
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full"
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
