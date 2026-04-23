@@ -12,7 +12,7 @@ import {
   LogOut
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { signOut } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
@@ -25,15 +25,27 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname()
+  const { data: session } = useSession()
 
   return (
     <aside className="w-64 h-screen border-r border-border bg-card/30 flex flex-col sticky top-0">
       <div className="p-6">
-        <div className="flex items-center gap-2 mb-8">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <span className="font-bold text-white text-xl">J</span>
+        <div className="flex items-center gap-3 mb-10">
+          <div className="w-10 h-10 rounded-xl overflow-hidden border border-primary/20 shadow-lg shadow-primary/10">
+            {session?.user?.image ? (
+              <img src={session.user.image} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full bg-primary flex items-center justify-center">
+                <span className="font-black text-white text-lg">
+                  {session?.user?.name?.[0] || "J"}
+                </span>
+              </div>
+            )}
           </div>
-          <span className="text-xl font-bold tracking-tight">JobTrack</span>
+          <div className="flex flex-col">
+            <span className="text-lg font-black tracking-tight font-outfit">JobTrack</span>
+            <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] -mt-1">Premium</span>
+          </div>
         </div>
 
         <nav className="space-y-1">

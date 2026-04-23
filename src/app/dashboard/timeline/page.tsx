@@ -1,97 +1,146 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { CheckCircle2, Circle, Clock, Mail, MessageSquare, Trophy } from "lucide-react"
+import { useState, useEffect } from "react"
+import { useSession } from "next-auth/react"
+import { motion, AnimatePresence } from "framer-motion"
+import { CheckCircle2, Circle, Clock, Mail, MessageSquare, Trophy, AlertCircle, RotateCcw } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-const timelineData = [
-  {
-    company: "Google",
-    role: "Senior Software Engineer",
-    status: "OFFER",
-    date: "2024-04-15",
-    events: [
-      { type: "Applied", date: "2024-03-01", icon: Mail },
-      { type: "Technical Interview", date: "2024-03-15", icon: MessageSquare },
-      { type: "Onsite Interview", date: "2024-04-02", icon: MessageSquare },
-      { type: "Offer Received", date: "2024-04-15", icon: Trophy },
-    ]
-  },
-  {
-    company: "Amazon",
-    role: "Full Stack Developer",
-    status: "INTERVIEW",
-    date: "2024-04-10",
-    events: [
-      { type: "Applied", date: "2024-03-05", icon: Mail },
-      { type: "Assessment", date: "2024-03-20", icon: Clock },
-      { type: "Technical Round", date: "2024-04-10", icon: MessageSquare },
-    ]
-  },
-  {
-    company: "Microsoft",
-    role: "Frontend Engineer",
-    status: "REJECTED",
-    date: "2024-03-25",
-    events: [
-      { type: "Applied", date: "2024-02-20", icon: Mail },
-      { type: "HR Screen", date: "2024-03-10", icon: MessageSquare },
-      { type: "Rejection", date: "2024-03-25", icon: Circle },
-    ]
-  }
-]
-
 export default function TimelinePage() {
+  const { data: session } = useSession()
+  const [applications, setApplications] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchApps = async () => {
+      try {
+        const res = await fetch("/api/applications")
+        if (res.ok) {
+          const data = await res.json()
+          setApplications(data)
+        }
+      } catch (error) {
+        console.error("Failed to fetch applications")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    if (session) fetchApps()
+  }, [session])
+
+  if (!session) return null
+
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 pb-20">
       <header>
-        <h1 className="text-3xl font-bold tracking-tight">Career Journey</h1>
-        <p className="text-muted-foreground mt-1">A visual map of your job search progress and milestones.</p>
+        <h1 className="text-4xl font-black font-outfit tracking-tight bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">
+          Career Journey
+        </h1>
+        <p className="text-muted-foreground mt-1 text-sm">A visual map of your job search progress and milestones.</p>
       </header>
 
-      <div className="space-y-12">
-        {timelineData.map((job, idx) => (
-          <motion.div 
-            key={job.company}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: idx * 0.1 }}
-            className="relative"
-          >
-            <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center font-bold text-xl text-primary border border-primary/20 shadow-[0_0_15px_rgba(139,92,246,0.2)]">
-                {job.company[0]}
-              </div>
-              <div>
-                <h3 className="text-xl font-bold">{job.company}</h3>
-                <p className="text-sm text-muted-foreground">{job.role}</p>
-              </div>
-              <div className={cn(
-                "ml-auto px-4 py-1.5 rounded-full text-xs font-bold border",
-                getStatusStyles(job.status)
-              )}>
-                {job.status}
-              </div>
-            </div>
-
-            <div className="ml-6 grid grid-cols-1 md:grid-cols-4 gap-4 relative before:absolute before:left-0 before:right-0 before:top-[18px] before:h-[2px] before:bg-border/50 md:before:block before:hidden">
-              {job.events.map((event, eIdx) => (
-                <div key={eIdx} className="relative pt-10 md:pt-0">
-                  <div className="absolute left-1/2 -translate-x-1/2 -top-[18px] w-9 h-9 rounded-full bg-background border-2 border-border flex items-center justify-center z-10 md:static md:mx-auto md:mb-4 group">
-                    <event.icon className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                    {eIdx === job.events.length - 1 && (
-                      <div className="absolute inset-0 rounded-full border-2 border-primary animate-ping opacity-20" />
-                    )}
-                  </div>
-                  <div className="text-center">
-                    <div className="text-sm font-semibold">{event.type}</div>
-                    <div className="text-xs text-muted-foreground">{new Date(event.date).toLocaleDateString()}</div>
-                  </div>
+      {isLoading ? (
+        <div className="h-64 flex items-center justify-center">
+          <RotateCcw className="w-8 h-8 text-primary animate-spin" />
+        </div>
+      ) : applications.length > 0 ? (
+        <div className="space-y-16">
+          {applications.map((job, idx) => (
+            <motion.div 
+              key={job.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              className="relative"
+            >
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center font-black text-2xl text-primary border border-primary/20 shadow-[0_0_20px_rgba(139,92,246,0.15)]">
+                  {job.company[0]}
                 </div>
-              ))}
-            </div>
-          </motion.div>
-        ))}
+                <div>
+                  <h3 className="text-2xl font-black font-outfit">{job.company}</h3>
+                  <p className="text-sm text-muted-foreground font-medium">{job.role}</p>
+                </div>
+                <div className={cn(
+                  "ml-auto px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border",
+                  getStatusStyles(job.status)
+                )}>
+                  {job.status}
+                </div>
+              </div>
+
+              {/* Dynamic Horizontal Timeline based on app history if available */}
+              <div className="ml-7 flex gap-4 relative overflow-x-auto pb-4 scrollbar-hide">
+                <div className="absolute left-0 right-0 top-[18px] h-[2px] bg-border/50 z-0" />
+                
+                <TimelineEvent 
+                  type="Applied" 
+                  date={job.appliedDate} 
+                  icon={Mail} 
+                  isLast={job.status === "APPLIED"} 
+                />
+                
+                {job.status !== "APPLIED" && job.status !== "REJECTED" && (
+                  <TimelineEvent 
+                    type={job.status === "OFFER" ? "Offer" : "Progress"} 
+                    date={job.lastUpdate} 
+                    icon={job.status === "OFFER" ? Trophy : Clock} 
+                    isLast={true} 
+                  />
+                )}
+
+                {job.status === "REJECTED" && (
+                  <TimelineEvent 
+                    type="Decision" 
+                    date={job.lastUpdate} 
+                    icon={Circle} 
+                    isLast={true} 
+                    isRejected 
+                  />
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      ) : (
+        <div className="glass-card p-20 flex flex-col items-center justify-center text-center space-y-4">
+          <div className="p-4 rounded-full bg-muted/50 border border-border">
+            <AlertCircle className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <div>
+            <h3 className="font-bold text-lg">No Journey Data</h3>
+            <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+              Track your first application to see your career journey visualization here.
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function TimelineEvent({ type, date, icon: Icon, isLast, isRejected }: any) {
+  return (
+    <div className="relative pt-10 min-w-[140px] flex-shrink-0">
+      <div className={cn(
+        "absolute left-1/2 -translate-x-1/2 -top-[18px] w-9 h-9 rounded-full bg-background border-2 flex items-center justify-center z-10 transition-all",
+        isRejected ? "border-rose-500/50" : "border-border",
+        isLast && !isRejected && "border-primary"
+      )}>
+        <Icon className={cn(
+          "w-4 h-4",
+          isLast ? "text-primary" : "text-muted-foreground",
+          isRejected && "text-rose-500"
+        )} />
+        {isLast && !isRejected && (
+          <div className="absolute inset-0 rounded-full border-2 border-primary animate-ping opacity-20" />
+        )}
+      </div>
+      <div className="text-center">
+        <div className="text-xs font-black uppercase tracking-widest mb-1">{type}</div>
+        <div className="text-[10px] font-bold text-muted-foreground">
+          {new Date(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+        </div>
       </div>
     </div>
   )
@@ -99,9 +148,9 @@ export default function TimelinePage() {
 
 function getStatusStyles(status: string) {
   switch (status) {
-    case "OFFER": return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]"
-    case "INTERVIEW": return "bg-purple-500/10 text-purple-500 border-purple-500/20"
-    case "REJECTED": return "bg-rose-500/10 text-rose-500 border-rose-500/20"
-    default: return "bg-muted text-muted-foreground"
+    case "OFFER": return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
+    case "INTERVIEW": return "bg-purple-500/10 text-purple-500 border-purple-500/20 shadow-[0_0_15px_rgba(139,92,246,0.1)]"
+    case "REJECTED": return "bg-rose-500/10 text-rose-500 border-rose-500/20 shadow-[0_0_15px_rgba(244,63,94,0.1)]"
+    default: return "bg-muted text-muted-foreground border-border"
   }
 }

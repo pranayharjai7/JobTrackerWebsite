@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { 
   Briefcase, 
@@ -11,10 +11,10 @@ import {
   List,
   History,
   Sparkles,
-  Filter,
   Search,
   RotateCcw,
-  Plus
+  Plus,
+  AlertCircle
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ListView } from "@/components/dashboard/ListView"
@@ -31,13 +31,25 @@ export default function DashboardPage() {
   const [statusFilter, setStatusFilter] = useState("ALL")
   const [isSyncing, setIsSyncing] = useState(false)
   const [selectedApp, setSelectedApp] = useState<any>(null)
+  const [applications, setApplications] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Mock data for demo purposes if session not yet loaded or no DB data
-  const applications = [
-    { id: "1", company: "Google", role: "Software Engineer", status: "INTERVIEW", appliedDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), lastUpdate: new Date().toISOString(), location: "Mountain View, CA", emails: [], summary: "Technical rounds scheduled. Prepare for algorithm and system design questions." },
-    { id: "2", company: "Meta", role: "Frontend Developer", status: "APPLIED", appliedDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), lastUpdate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), location: "Remote", emails: [] },
-    { id: "3", company: "Stripe", role: "Product Designer", status: "OFFER", appliedDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(), lastUpdate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), location: "San Francisco, CA", emails: [] },
-  ]
+  useEffect(() => {
+    const fetchApps = async () => {
+      try {
+        const res = await fetch("/api/applications") // Assuming this exists or I'll need to create it
+        if (res.ok) {
+          const data = await res.json()
+          setApplications(data)
+        }
+      } catch (error) {
+        console.error("Failed to fetch applications")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    if (session) fetchApps()
+  }, [session])
 
   const stats = [
     { label: "Total Apps", value: applications.length, icon: Briefcase, color: "text-blue-500" },
@@ -53,15 +65,17 @@ export default function DashboardPage() {
       const matchesStatus = statusFilter === "ALL" || app.status === statusFilter
       return matchesSearch && matchesStatus
     })
-  }, [searchQuery, statusFilter])
+  }, [searchQuery, statusFilter, applications])
 
   const handleSync = async () => {
     setIsSyncing(true)
     try {
-      const res = await fetch("/api/sync", { method: "POST" })
-      // Handle response
+      await fetch("/api/sync", { method: "POST" })
+      // Refresh data after sync
+      const res = await fetch("/api/applications")
+      if (res.ok) setApplications(await res.json())
     } finally {
-      setTimeout(() => setIsSyncing(false), 2000) // Mock delay
+      setIsSyncing(false)
     }
   }
 
@@ -74,10 +88,10 @@ export default function DashboardPage() {
           <h1 className="text-4xl font-black font-outfit tracking-tight bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">
             Executive Dashboard
           </h1>
-          <p className="text-muted-foreground mt-1 flex items-center gap-2">
+          <p className="text-muted-foreground mt-1 flex items-center gap-2 text-sm">
             Welcome back, {session.user?.name}
             <span className="w-1 h-1 rounded-full bg-border" />
-            <span className="text-primary font-medium">System Synchronized</span>
+            <span className="text-primary font-bold">System Online</span>
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -94,7 +108,7 @@ export default function DashboardPage() {
           </button>
           <button className="bg-primary text-primary-foreground px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:opacity-90 shadow-lg shadow-primary/20 transition-all">
             <Plus className="w-4 h-4" />
-            New Entry
+            Add Manually
           </button>
         </div>
       </header>
@@ -113,7 +127,6 @@ export default function DashboardPage() {
               <div className={cn("p-2 rounded-xl bg-background/50", stat.color)}>
                 <stat.icon className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">+12%</span>
             </div>
             <div className="text-3xl font-black font-outfit">{stat.value}</div>
             <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-1">{stat.label}</div>
@@ -160,58 +173,63 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Smart Filters */}
-          <div className="flex flex-wrap gap-2">
-            <div className="px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-bold text-primary flex items-center gap-1.5 animate-pulse">
-              <Sparkles className="w-3 h-3" />
-              AI SUGGESTED:
-            </div>
-            {["Needs Follow-up", "Interview Soon", "High Response Rate"].map(filter => (
-              <button key={filter} className="px-3 py-1.5 rounded-full bg-card/50 border border-border text-[10px] font-bold text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all">
-                {filter}
-              </button>
-            ))}
-          </div>
-
           {/* Main View */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={view}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
-            >
-              {view === "list" ? (
-                <ListView applications={filteredApps} onSelect={setSelectedApp} />
-              ) : (
-                <JourneyMode applications={filteredApps} />
-              )}
-            </motion.div>
-          </AnimatePresence>
+          {isLoading ? (
+            <div className="h-64 flex items-center justify-center">
+              <RotateCcw className="w-8 h-8 text-primary animate-spin" />
+            </div>
+          ) : (
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={view}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
+              >
+                {filteredApps.length > 0 ? (
+                  view === "list" ? (
+                    <ListView applications={filteredApps} onSelect={setSelectedApp} />
+                  ) : (
+                    <JourneyMode applications={filteredApps} />
+                  )
+                ) : (
+                  <div className="glass-card p-20 flex flex-col items-center justify-center text-center space-y-4">
+                    <div className="p-4 rounded-full bg-muted/50 border border-border">
+                      <AlertCircle className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg">No Applications Found</h3>
+                      <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                        Connect your Gmail accounts to automatically track your job search progress.
+                      </p>
+                    </div>
+                    <button 
+                      onClick={handleSync}
+                      className="text-primary font-bold text-sm flex items-center gap-2 hover:underline"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                      Try Syncing Now
+                    </button>
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          )}
         </div>
 
         {/* Sidebar Widgets */}
         <div className="space-y-6">
           <ActivityHeatmap applications={applications} />
           
-          <div className="glass-card p-6">
+          <div className="glass-card p-6 bg-gradient-to-br from-primary/10 to-transparent border-primary/10">
             <h3 className="font-bold flex items-center gap-2 mb-4">
-              <Clock className="w-4 h-4 text-primary" />
-              Next Milestones
+              <Sparkles className="w-4 h-4 text-primary" />
+              Pro Insights
             </h3>
-            <div className="space-y-4">
-              {[
-                { label: "Technical Interview", co: "Google", time: "Tomorrow, 10:00 AM" },
-                { label: "Follow-up", co: "Meta", time: "In 2 days" }
-              ].map((m, i) => (
-                <div key={i} className="p-3 rounded-xl bg-background/50 border border-border group hover:border-primary/30 transition-all">
-                  <div className="text-[10px] font-bold text-primary uppercase mb-1">{m.co}</div>
-                  <div className="text-sm font-bold">{m.label}</div>
-                  <div className="text-xs text-muted-foreground mt-1">{m.time}</div>
-                </div>
-              ))}
-            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Our AI engine is currently analyzing your application patterns. Connect more accounts to receive personalized suggestions and interview tips.
+            </p>
           </div>
         </div>
       </div>
