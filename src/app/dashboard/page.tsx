@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { 
   Briefcase, 
@@ -17,6 +17,7 @@ import {
   AlertCircle
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useSyncContext } from "@/context/SyncContext"
 import { ListView } from "@/components/dashboard/ListView"
 import { JourneyMode } from "@/components/dashboard/JourneyMode"
 import { ActivityHeatmap } from "@/components/dashboard/ActivityHeatmap"
@@ -30,13 +31,14 @@ export default function DashboardPage() {
   const [view, setView] = useState<"list" | "journey">("list")
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("ALL")
-  const [isSyncing, setIsSyncing] = useState(false)
+  const { status: syncStatus, triggerSync } = useSyncContext()
+  const isSyncing = syncStatus === "syncing"
   const [selectedApp, setSelectedApp] = useState<any>(null)
   const [applications, setApplications] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
-  const fetchApps = async () => {
+  const fetchApps = useCallback(async () => {
     try {
       const res = await fetch("/api/applications")
       if (res.ok) {
@@ -48,11 +50,17 @@ export default function DashboardPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
-    if (session) fetchApps()
-  }, [session])
+    if (!session) return
+    fetchApps()
+
+    // Refresh data whenever a background sync completes,
+    // regardless of which page the user was on during the sync.
+    window.addEventListener("jobtrack:sync-complete", fetchApps)
+    return () => window.removeEventListener("jobtrack:sync-complete", fetchApps)
+  }, [session, fetchApps])
 
   const stats = [
     { label: "Total Apps", value: applications.length, icon: Briefcase, color: "text-blue-500" },
@@ -70,17 +78,7 @@ export default function DashboardPage() {
     })
   }, [searchQuery, statusFilter, applications])
 
-  const handleSync = async () => {
-    setIsSyncing(true)
-    try {
-      await fetch("/api/sync", { method: "POST" })
-      // Refresh data after sync
-      const res = await fetch("/api/applications")
-      if (res.ok) setApplications(await res.json())
-    } finally {
-      setIsSyncing(false)
-    }
-  }
+  const handleSync = () => triggerSync()
 
   if (!session) return null
 

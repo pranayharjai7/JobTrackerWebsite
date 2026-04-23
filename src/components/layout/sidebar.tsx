@@ -13,6 +13,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { signOut, useSession } from "next-auth/react"
+import { useSyncContext } from "@/context/SyncContext"
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
@@ -33,6 +34,8 @@ const legalItems = [
 export function Sidebar() {
   const pathname = usePathname()
   const { data: session } = useSession()
+  const { status: syncStatus } = useSyncContext()
+  const isSyncing = syncStatus === "syncing"
 
   return (
     <aside className="w-64 h-screen border-r border-border bg-card/30 flex flex-col sticky top-0">
