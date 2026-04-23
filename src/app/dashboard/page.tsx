@@ -14,7 +14,11 @@ import {
   Search,
   RotateCcw,
   Plus,
-  AlertCircle
+  AlertCircle,
+  Target,
+  Award,
+  XCircle,
+  X
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useSyncContext } from "@/context/SyncContext"
@@ -24,7 +28,7 @@ import { ActivityHeatmap } from "@/components/dashboard/ActivityHeatmap"
 import { ApplicationDetails } from "@/components/dashboard/ApplicationDetails"
 import { AddApplicationModal } from "@/components/dashboard/AddApplicationModal"
 import { motion, AnimatePresence } from "framer-motion"
-import { X } from "lucide-react"
+
 
 export default function DashboardPage() {
   const { data: session } = useSession()
@@ -34,6 +38,7 @@ export default function DashboardPage() {
   const { status: syncStatus, triggerSync } = useSyncContext()
   const isSyncing = syncStatus === "syncing"
   const [selectedApp, setSelectedApp] = useState<any>(null)
+  const [editingApp, setEditingApp] = useState<any>(null)
   const [applications, setApplications] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
@@ -64,9 +69,9 @@ export default function DashboardPage() {
 
   const stats = [
     { label: "Total Apps", value: applications.length, icon: Briefcase, color: "text-blue-500" },
-    { label: "Interviews", value: applications.filter(a => a.status === "INTERVIEW").length, icon: MessageSquare, color: "text-purple-500" },
-    { label: "Offers", value: applications.filter(a => a.status === "OFFER").length, icon: CheckCircle2, color: "text-emerald-500" },
-    { label: "Active", value: applications.filter(a => a.status !== "REJECTED").length, icon: TrendingUp, color: "text-amber-500" },
+    { label: "Interviews", value: applications.filter(a => ["INTERVIEW", "OFFER"].includes(a.status)).length, icon: Target, color: "text-purple-500" },
+    { label: "Offers Received", value: applications.filter(a => a.status === "OFFER").length, icon: Award, color: "text-emerald-500" },
+    { label: "Rejected", value: applications.filter(a => a.status === "REJECTED").length, icon: XCircle, color: "text-rose-500" },
   ]
 
   const filteredApps = useMemo(() => {
@@ -79,6 +84,23 @@ export default function DashboardPage() {
   }, [searchQuery, statusFilter, applications])
 
   const handleSync = () => triggerSync()
+
+  const handleEdit = (app: any) => {
+    setEditingApp(app)
+    setIsAddModalOpen(true)
+  }
+
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await fetch(`/api/applications/${id}`, { method: "DELETE" })
+      if (res.ok) {
+        if (selectedApp?.id === id) setSelectedApp(null)
+        fetchApps()
+      }
+    } catch (error) {
+      console.error("Failed to delete application:", error)
+    }
+  }
 
   if (!session) return null
 
@@ -108,7 +130,10 @@ export default function DashboardPage() {
             {isSyncing ? "Synchronizing..." : "Sync Gmail"}
           </button>
           <button 
-            onClick={() => setIsAddModalOpen(true)}
+            onClick={() => {
+              setEditingApp(null)
+              setIsAddModalOpen(true)
+            }}
             className="bg-primary text-primary-foreground px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:opacity-90 shadow-lg shadow-primary/20 transition-all"
           >
             <Plus className="w-4 h-4" />
@@ -193,7 +218,12 @@ export default function DashboardPage() {
               >
                 {filteredApps.length > 0 ? (
                   view === "list" ? (
-                    <ListView applications={filteredApps} onSelect={setSelectedApp} />
+                    <ListView 
+                      applications={filteredApps} 
+                      onSelect={setSelectedApp} 
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                    />
                   ) : (
                     <JourneyMode applications={filteredApps} />
                   )
@@ -262,7 +292,14 @@ export default function DashboardPage() {
                 >
                   <X className="w-5 h-5" />
                 </button>
-                <ApplicationDetails application={selectedApp} />
+                <ApplicationDetails 
+                  application={selectedApp} 
+                  onEdit={(app) => {
+                    setSelectedApp(null)
+                    handleEdit(app)
+                  }}
+                  onDelete={handleDelete}
+                />
               </div>
             </motion.div>
           </motion.div>
@@ -271,8 +308,12 @@ export default function DashboardPage() {
       {/* Add Modal */}
       <AddApplicationModal 
         isOpen={isAddModalOpen} 
-        onClose={() => setIsAddModalOpen(false)} 
+        onClose={() => {
+          setIsAddModalOpen(false)
+          setEditingApp(null)
+        }} 
         onSuccess={fetchApps}
+        initialData={editingApp}
       />
     </div>
   )

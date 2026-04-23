@@ -12,7 +12,10 @@ import {
   ShieldCheck,
   MessageSquare,
   Clock,
-  Sparkles
+  Sparkles,
+  Edit2,
+  Trash2,
+  X
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -34,12 +37,18 @@ interface Application {
   summary?: string
 }
 
-export function ApplicationDetails({ application }: { application: Application }) {
+interface ApplicationDetailsProps {
+  application: Application
+  onEdit?: (app: Application) => void
+  onDelete?: (id: string) => void
+}
+
+export function ApplicationDetails({ application, onEdit, onDelete }: ApplicationDetailsProps) {
   const [activeTab, setActiveTab] = useState<"summary" | "timeline">("summary")
 
   return (
     <div className="glass-card overflow-hidden">
-      <div className="p-8 border-b border-border bg-gradient-to-br from-primary/5 to-transparent">
+      <div className="p-8 pr-20 border-b border-border bg-gradient-to-br from-primary/5 to-transparent relative">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-6">
             <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center font-black text-primary text-3xl border border-primary/20 shadow-xl shadow-primary/10">
@@ -66,12 +75,32 @@ export function ApplicationDetails({ application }: { application: Application }
             </div>
           </div>
           <div className="flex flex-col items-end gap-3">
-            <span className={cn(
-              "px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border shadow-sm",
-              getStatusStyles(application.status)
-            )}>
-              {application.status}
-            </span>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => onEdit?.(application)}
+                className="p-2 rounded-lg bg-background/50 border border-border text-muted-foreground hover:text-primary hover:border-primary/30 transition-all"
+                title="Edit Application"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={() => {
+                  if (confirm("Are you sure you want to delete this application?")) {
+                    onDelete?.(application.id)
+                  }
+                }}
+                className="p-2 rounded-lg bg-background/50 border border-border text-muted-foreground hover:text-rose-500 hover:border-rose-500/30 transition-all"
+                title="Delete Application"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+              <span className={cn(
+                "px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border shadow-sm",
+                getStatusStyles(application.status)
+              )}>
+                {application.status}
+              </span>
+            </div>
             <button className="text-xs font-bold text-primary flex items-center gap-1.5 hover:underline">
               View on LinkedIn
               <ExternalLink className="w-3 h-3" />

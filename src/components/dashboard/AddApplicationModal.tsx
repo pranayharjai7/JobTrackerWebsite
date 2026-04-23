@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Building2, Briefcase, Calendar, MapPin, Loader2, Sparkles } from "lucide-react"
 
@@ -8,9 +8,10 @@ interface AddApplicationModalProps {
   isOpen: boolean
   onClose: () => void
   onSuccess: () => void
+  initialData?: any // For editing
 }
 
-export function AddApplicationModal({ isOpen, onClose, onSuccess }: AddApplicationModalProps) {
+export function AddApplicationModal({ isOpen, onClose, onSuccess, initialData }: AddApplicationModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     company: "",
@@ -20,18 +21,20 @@ export function AddApplicationModal({ isOpen, onClose, onSuccess }: AddApplicati
     appliedDate: new Date().toISOString().split("T")[0]
   })
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    try {
-      const res = await fetch("/api/applications", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
-      })
-      if (res.ok) {
-        onSuccess()
-        onClose()
+
+  useEffect(() => {
+    if (isOpen) {
+      if (initialData) {
+        setFormData({
+          company: initialData.company || "",
+          role: initialData.role || "",
+          status: initialData.status || "APPLIED",
+          location: initialData.location || "",
+          appliedDate: initialData.appliedDate 
+            ? new Date(initialData.appliedDate).toISOString().split("T")[0]
+            : new Date().toISOString().split("T")[0]
+        })
+      } else {
         setFormData({
           company: "",
           role: "",
@@ -40,8 +43,29 @@ export function AddApplicationModal({ isOpen, onClose, onSuccess }: AddApplicati
           appliedDate: new Date().toISOString().split("T")[0]
         })
       }
+    }
+  }, [isOpen, initialData])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    try {
+      const url = initialData 
+        ? `/api/applications/${initialData.id}` 
+        : "/api/applications"
+      
+      const res = await fetch(url, {
+        method: initialData ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      })
+
+      if (res.ok) {
+        onSuccess()
+        onClose()
+      }
     } catch (error) {
-      console.error("Failed to add application:", error)
+      console.error("Failed to save application:", error)
     } finally {
       setIsSubmitting(false)
     }
@@ -72,8 +96,12 @@ export function AddApplicationModal({ isOpen, onClose, onSuccess }: AddApplicati
                     <Sparkles className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-black font-outfit tracking-tight">Add Application</h2>
-                    <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Manual Entry</p>
+                    <h2 className="text-2xl font-black font-outfit tracking-tight">
+                      {initialData ? "Edit Application" : "Add Application"}
+                    </h2>
+                    <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">
+                      {initialData ? "Update Details" : "Manual Entry"}
+                    </p>
                   </div>
                 </div>
                 <button
@@ -184,10 +212,10 @@ export function AddApplicationModal({ isOpen, onClose, onSuccess }: AddApplicati
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Creating...
+                      {initialData ? "Saving..." : "Creating..."}
                     </>
                   ) : (
-                    "Add Application"
+                    initialData ? "Save Changes" : "Add Application"
                   )}
                 </button>
               </div>
