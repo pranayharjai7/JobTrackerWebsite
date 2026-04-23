@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Mail, Globe } from "lucide-react";
+import { GitHub as Github, Mail, Globe } from "lucide-react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -25,7 +25,7 @@ export default function Footer() {
                 target="_blank" 
                 className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary/20 hover:text-primary transition-all"
               >
-                <Mail className="w-5 h-5" />
+                <Github className="w-5 h-5" />
               </Link>
               <Link 
                 href="mailto:contact@jobtrack.app" 

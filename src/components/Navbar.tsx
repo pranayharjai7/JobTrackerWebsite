@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Github, Menu, X, Mail } from "lucide-react";
+import { GitHub as Github, Menu, X, Mail } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
@@ -57,7 +57,7 @@ export default function Navbar() {
             rel="noopener noreferrer"
             className="text-muted-foreground hover:text-white transition-colors"
           >
-            <Mail className="w-5 h-5" />
+            <Github className="w-5 h-5" />
           </Link>
           {session ? (
             <Link
@@ -78,7 +78,7 @@ export default function Navbar() {
 
         {/* Mobile Toggle */}
         <button className="md:hidden text-white" onClick={() => setIsOpen(!isOpen)}>
-          {isOpen ? <Mail /> : <Mail />}
+          {isOpen ? <X /> : <Menu />}
         </button>
       </div>
 
@@ -107,7 +107,7 @@ export default function Navbar() {
                 target="_blank"
                 className="flex items-center gap-2 text-white"
               >
-                <Mail className="w-6 h-6" />
+                <Github className="w-6 h-6" />
                 <span>GitHub</span>
               </Link>
               {session ? (

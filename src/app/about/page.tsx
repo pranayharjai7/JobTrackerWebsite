@@ -3,7 +3,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { motion } from "framer-motion";
-import { Mail, Code2, Rocket, Heart, Coffee } from "lucide-react";
+import { GitHub as Github, Mail, Code2, Rocket, Heart, Coffee } from "lucide-react";
 import Link from "next/link";
 
 export default function AboutPage() {
@@ -61,11 +61,11 @@ export default function AboutPage() {
 
             <section className="space-y-6 p-12 rounded-[2.5rem] bg-primary/5 border border-primary/20 relative overflow-hidden group">
               <div className="absolute -bottom-10 -right-10 opacity-10 group-hover:scale-110 transition-transform duration-700">
-                <Mail className="w-64 h-64" />
+                <Github className="w-64 h-64" />
               </div>
               <div className="relative z-10">
                 <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-4 font-heading">
-                  <Mail className="text-primary" />
+                  <Github className="text-primary" />
                   Open Source
                 </h2>
                 <p className="mb-8">
@@ -76,7 +76,7 @@ export default function AboutPage() {
                   href="https://github.com/pranayharjai7/JobTrackerWebsite" 
                   className="inline-flex items-center gap-2 px-8 py-3 bg-white text-black font-bold rounded-xl hover:bg-primary hover:text-white transition-all"
                 >
-                  <Mail className="w-5 h-5" />
+                  <Github className="w-5 h-5" />
                   View the Repo
                 </Link>
               </div>

@@ -21,6 +21,7 @@ import { ListView } from "@/components/dashboard/ListView"
 import { JourneyMode } from "@/components/dashboard/JourneyMode"
 import { ActivityHeatmap } from "@/components/dashboard/ActivityHeatmap"
 import { ApplicationDetails } from "@/components/dashboard/ApplicationDetails"
+import { AddApplicationModal } from "@/components/dashboard/AddApplicationModal"
 import { motion, AnimatePresence } from "framer-motion"
 import { X } from "lucide-react"
 
@@ -33,21 +34,23 @@ export default function DashboardPage() {
   const [selectedApp, setSelectedApp] = useState<any>(null)
   const [applications, setApplications] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+
+  const fetchApps = async () => {
+    try {
+      const res = await fetch("/api/applications")
+      if (res.ok) {
+        const data = await res.json()
+        setApplications(data)
+      }
+    } catch (error) {
+      console.error("Failed to fetch applications")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const fetchApps = async () => {
-      try {
-        const res = await fetch("/api/applications") // Assuming this exists or I'll need to create it
-        if (res.ok) {
-          const data = await res.json()
-          setApplications(data)
-        }
-      } catch (error) {
-        console.error("Failed to fetch applications")
-      } finally {
-        setIsLoading(false)
-      }
-    }
     if (session) fetchApps()
   }, [session])
 
@@ -106,7 +109,10 @@ export default function DashboardPage() {
             <RotateCcw className={cn("w-4 h-4 text-primary", isSyncing && "animate-spin")} />
             {isSyncing ? "Synchronizing..." : "Sync Gmail"}
           </button>
-          <button className="bg-primary text-primary-foreground px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:opacity-90 shadow-lg shadow-primary/20 transition-all">
+          <button 
+            onClick={() => setIsAddModalOpen(true)}
+            className="bg-primary text-primary-foreground px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:opacity-90 shadow-lg shadow-primary/20 transition-all"
+          >
             <Plus className="w-4 h-4" />
             Add Manually
           </button>
@@ -264,6 +270,12 @@ export default function DashboardPage() {
           </motion.div>
         )}
       </AnimatePresence>
+      {/* Add Modal */}
+      <AddApplicationModal 
+        isOpen={isAddModalOpen} 
+        onClose={() => setIsAddModalOpen(false)} 
+        onSuccess={fetchApps}
+      />
     </div>
   )
 }
