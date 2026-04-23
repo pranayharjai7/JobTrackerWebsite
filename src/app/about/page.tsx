@@ -73,7 +73,7 @@ export default function AboutPage() {
               </div>
               <div className="relative z-10">
                 <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-4 font-heading">
-                  <GithubIcon className="text-primary" />
+                  <GithubIcon className="w-8 h-8 text-primary" />
                   Open Source
                 </h2>
                 <p className="mb-8">
