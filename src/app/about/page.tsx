@@ -3,7 +3,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { motion } from "framer-motion";
-import { GitHub as Github, Mail, Code2, Rocket, Heart, Coffee } from "lucide-react";
+import { Github, Mail, Code2, Rocket, Heart, Coffee } from "lucide-react";
 import Link from "next/link";
 
 export default function AboutPage() {

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { GitHub as Github, Menu, X, Mail } from "lucide-react";
+import { Github, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
