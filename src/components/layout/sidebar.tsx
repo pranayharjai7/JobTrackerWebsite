@@ -23,6 +23,13 @@ const navItems = [
   { icon: Settings, label: "Settings", href: "/dashboard/settings" },
 ]
 
+const legalItems = [
+  { label: "Features", href: "/features" },
+  { label: "About", href: "/about" },
+  { label: "Privacy", href: "/privacy" },
+  { label: "Terms", href: "/terms" },
+]
+
 export function Sidebar() {
   const pathname = usePathname()
   const { data: session } = useSession()
@@ -71,6 +78,21 @@ export function Sidebar() {
             )
           })}
         </nav>
+
+        <div className="mt-8">
+          <span className="px-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Resources</span>
+          <nav className="mt-4 space-y-1">
+            {legalItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="flex items-center gap-3 px-4 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
       </div>
 
       <div className="mt-auto p-6 border-t border-border/50">
