@@ -53,16 +53,16 @@ export default function TimelinePage() {
               transition={{ delay: idx * 0.1 }}
               className="relative"
             >
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center font-black text-2xl text-primary border border-primary/20 shadow-[0_0_20px_rgba(139,92,246,0.15)]">
+              <div className="flex items-center gap-4 mb-8 flex-wrap md:flex-nowrap">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center font-black text-2xl text-primary border border-primary/20 shadow-[0_0_20px_rgba(139,92,246,0.15)] flex-shrink-0">
                   {job.company[0]}
                 </div>
-                <div>
-                  <h3 className="text-2xl font-black font-outfit">{job.company}</h3>
-                  <p className="text-sm text-muted-foreground font-medium">{job.role}</p>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-2xl font-black font-outfit truncate" title={job.company}>{job.company}</h3>
+                  <p className="text-sm text-muted-foreground font-medium truncate" title={job.role}>{job.role}</p>
                 </div>
                 <div className={cn(
-                  "ml-auto px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border",
+                  "px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border flex-shrink-0 ml-0 md:ml-auto",
                   getStatusStyles(job.status)
                 )}>
                   {job.status}
@@ -70,8 +70,8 @@ export default function TimelinePage() {
               </div>
 
               {/* Dynamic Horizontal Timeline based on app history if available */}
-              <div className="ml-7 flex gap-4 relative overflow-x-auto pb-4 scrollbar-hide">
-                <div className="absolute left-0 right-0 top-[18px] h-[2px] bg-border/50 z-0" />
+              <div className="ml-7 flex gap-4 relative overflow-x-auto pb-4 pt-6 scrollbar-hide">
+                <div className="absolute left-0 right-0 top-[42px] h-[2px] bg-border/50 z-0" />
                 
                 <TimelineEvent 
                   type="Applied" 
@@ -123,7 +123,7 @@ function TimelineEvent({ type, date, icon: Icon, isLast, isRejected }: any) {
   return (
     <div className="relative pt-10 min-w-[140px] flex-shrink-0">
       <div className={cn(
-        "absolute left-1/2 -translate-x-1/2 -top-[18px] w-9 h-9 rounded-full bg-background border-2 flex items-center justify-center z-10 transition-all",
+        "absolute left-1/2 -translate-x-1/2 top-0 w-9 h-9 rounded-full bg-background border-2 flex items-center justify-center z-10 transition-all",
         isRejected ? "border-rose-500/50" : "border-border",
         isLast && !isRejected && "border-primary"
       )}>
