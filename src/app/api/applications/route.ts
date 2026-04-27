@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 import { getAIProvider } from "@/lib/ai"
+import { applicationSchema } from "@/lib/validations"
 
 export async function GET() {
   const session = await getServerSession(authOptions)
@@ -38,7 +39,8 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json()
-    const { company, role, status, location, appliedDate } = body
+    const validatedData = applicationSchema.parse(body)
+    const { company, role, status, location, appliedDate } = validatedData
 
     const application = await prisma.application.create({
       data: {
@@ -76,8 +78,11 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(application)
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to create application:", error)
+    if (error.name === "ZodError") {
+      return new NextResponse(JSON.stringify({ message: "Invalid input data", errors: error.errors }), { status: 400 })
+    }
     return new NextResponse("Internal Server Error", { status: 500 })
   }
 }

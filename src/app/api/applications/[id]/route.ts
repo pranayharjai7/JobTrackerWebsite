@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
+import { applicationUpdateSchema } from "@/lib/validations"
 
 export async function PATCH(
   req: Request,
@@ -12,7 +13,8 @@ export async function PATCH(
 
   try {
     const body = await req.json()
-    const { company, role, status, location, appliedDate } = body
+    const validatedData = applicationUpdateSchema.parse(body)
+    const { company, role, status, location, appliedDate } = validatedData
 
     const application = await prisma.application.update({
       where: {
@@ -30,8 +32,11 @@ export async function PATCH(
     })
 
     return NextResponse.json(application)
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to update application:", error)
+    if (error.name === "ZodError") {
+      return new NextResponse(JSON.stringify({ message: "Invalid input data", errors: error.errors }), { status: 400 })
+    }
     return new NextResponse("Internal Server Error", { status: 500 })
   }
 }
